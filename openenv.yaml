@@ -1,0 +1,91 @@
+name: sos_env
+version: "2.0.0"
+description: >
+  Student Optimization System — An RL environment where an AI agent
+  optimizes a student's life across Health, Wisdom, and Wealth dimensions.
+  Ported from the SOS React application's scoring algorithms.
+
+entry_point: env.sos_env:SOSEnv
+inference: inference.py
+
+state_space:
+  type: dict
+  variables:
+    sleep:
+      type: float
+      range: [0, 12]
+      unit: hours/night
+    study_hours:
+      type: float
+      range: [0, 16]
+      unit: hours/day
+    stress:
+      type: int
+      range: [1, 10]
+      unit: scale
+    accuracy:
+      type: float
+      range: [0, 100]
+      unit: percent
+    gpa:
+      type: float
+      range: [0.0, 4.0]
+      unit: gpa
+    skill_time:
+      type: float
+      range: [0, 40]
+      unit: hours/week
+
+action_space:
+  type: discrete
+  actions:
+    - increase_sleep
+    - reduce_stress
+    - study_more
+    - practice_skills
+    - take_break
+    - improve_accuracy
+    - balance_routine
+
+reward:
+  type: delta
+  description: Normalized change in total score (health + wisdom + wealth) with threshold bonuses/penalties.
+
+tasks:
+  - id: health
+    name: Health Optimization
+    description: Optimize the student's health score to 80+
+    grading:
+      - threshold: 80
+        score: 1.0
+      - threshold: 60
+        score: 0.6
+      - default: 0.2
+
+  - id: balance
+    name: Balanced Lifestyle
+    description: Achieve health >= 70 AND wisdom >= 70
+    grading:
+      - condition: both_met
+        score: 1.0
+      - condition: one_met
+        score: 0.5
+      - default: 0.2
+
+  - id: full_optimization
+    name: Full Life Optimization
+    description: Achieve health, wisdom, AND wealth all >= 80
+    grading:
+      - condition: all_three_met
+        score: 1.0
+      - condition: two_met
+        score: 0.7
+      - condition: one_met
+        score: 0.4
+      - default: 0.1
+
+max_steps:
+  health: 12
+  balance: 18
+  full_optimization: 25
+randomize: false

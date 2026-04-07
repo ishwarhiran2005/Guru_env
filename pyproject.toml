@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sos-env"
+version = "2.0.0"
+description = "Student Optimization System - OpenEnv RL Environment"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "SOS Team"}
+]
+keywords = ["reinforcement-learning", "openenv", "education", "optimization"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "openai>=1.0.0",
+    "pydantic>=2.0.0",
+    "openenv-core>=0.2.0",
+]
+
+[project.scripts]
+sos-server = "server.app:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+]
+
+[tool.setuptools]
+packages = ["env"]

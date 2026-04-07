@@ -1,3 +1,12 @@
+---
+title: Guru Env - Student Optimization System
+emoji: 🎓
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # SOS — Student Optimization System (v2.0)
 ## OpenEnv RL Environment (Async + Typed)
 

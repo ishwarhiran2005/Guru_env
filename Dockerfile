@@ -19,5 +19,8 @@ ENV API_BASE_URL="https://router.huggingface.co/v1"
 ENV MODEL_NAME="meta-llama/Meta-Llama-3-8B-Instruct"
 # HF_TOKEN must be provided at runtime: docker run -e HF_TOKEN=your_hf_token
 
-# Run inference
-CMD ["python", "inference.py"]
+# Expose port for OpenEnv server
+EXPOSE 7860
+
+# Run OpenEnv server (not inference.py directly)
+CMD ["python", "-m", "uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "7860"]

@@ -156,7 +156,7 @@ All tasks return scores between 0.0–1.0 with smooth grading (partial progress 
 
 ### Prerequisites
 - Python 3.10+
-- OpenAI API key
+- Hugging Face API token (or OpenAI API key)
 
 ### Install
 ```bash
@@ -165,8 +165,10 @@ pip install openai
 
 ### Run Inference
 ```bash
-# Set API key
-export OPENAI_API_KEY="your-key-here"
+# Set MANDATORY environment variables (as per OpenEnv requirements)
+export HF_TOKEN="your-hf-token-here"
+export API_BASE_URL="https://router.huggingface.co/v1"  # Optional, has default
+export MODEL_NAME="meta-llama/Meta-Llama-3-8B-Instruct"  # Optional, has default
 
 # Run all tasks
 python inference.py
@@ -187,7 +189,10 @@ python inference.py --max-steps 15
 ### Docker
 ```bash
 docker build -t sos-env .
-docker run -e OPENAI_API_KEY="your-key" sos-env
+docker run -e HF_TOKEN="your-hf-token" \
+           -e API_BASE_URL="https://router.huggingface.co/v1" \
+           -e MODEL_NAME="meta-llama/Meta-Llama-3-8B-Instruct" \
+           sos-env
 ```
 
 ### Programmatic Usage

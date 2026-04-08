@@ -7,16 +7,22 @@ by the OpenEnv evaluation framework.
 
 Uses async/await for OpenEnv compliance.
 
+MANDATORY ENVIRONMENT VARIABLES (as per OpenEnv requirements):
+    API_BASE_URL   — The API endpoint for the LLM (default: https://router.huggingface.co/v1)
+    MODEL_NAME     — The model identifier to use for inference (default: meta-llama/Meta-Llama-3-8B-Instruct)
+    HF_TOKEN       — Your Hugging Face / API key (REQUIRED, no default)
+
 Usage:
+    # Set required environment variables
+    export HF_TOKEN="your-hf-token-here"
+    export API_BASE_URL="https://router.huggingface.co/v1"  # Optional, has default
+    export MODEL_NAME="meta-llama/Meta-Llama-3-8B-Instruct"  # Optional, has default
+
     python inference.py                          # Run all tasks
     python inference.py --task health            # Run specific task
     python inference.py --model gpt-4o           # Use specific model
     python inference.py --randomize              # Randomized initial state
     python inference.py --max-steps 15           # Custom episode length
-
-Environment variables:
-    OPENAI_API_KEY   — Required. Your OpenAI API key.
-    OPENAI_BASE_URL  — Optional. Custom API base URL.
 """
 
 import os
@@ -256,8 +262,8 @@ async def main():
     parser.add_argument(
         "--model",
         type=str,
-        default="gpt-4o-mini",
-        help="OpenAI model name (default: gpt-4o-mini)",
+        default=None,
+        help="OpenAI model name (default: from MODEL_NAME env var)",
     )
     parser.add_argument(
         "--max-steps",
@@ -278,19 +284,22 @@ async def main():
     )
     args = parser.parse_args()
 
-    # Initialize AsyncOpenAI client
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        print("ERROR: OPENAI_API_KEY environment variable is required.")
+    # MANDATORY: Get environment variables as per OpenEnv requirements
+    API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
+    MODEL_NAME = os.getenv("MODEL_NAME", "meta-llama/Meta-Llama-3-8B-Instruct")
+    HF_TOKEN = os.getenv("HF_TOKEN")
+    
+    # Use HF_TOKEN as API key (required)
+    if not HF_TOKEN:
+        print("ERROR: HF_TOKEN environment variable is required.")
         sys.exit(1)
 
-    client_kwargs = {"api_key": api_key}
-    if args.base_url:
-        client_kwargs["base_url"] = args.base_url
-    elif os.environ.get("OPENAI_BASE_URL"):
-        client_kwargs["base_url"] = os.environ["OPENAI_BASE_URL"]
+    # Override with command-line args if provided
+    model = args.model if args.model else MODEL_NAME
+    base_url = args.base_url if args.base_url else API_BASE_URL
 
-    client = AsyncOpenAI(**client_kwargs)
+    # Initialize AsyncOpenAI client with MANDATORY variables
+    client = AsyncOpenAI(api_key=HF_TOKEN, base_url=base_url)
 
     # Determine which tasks to run
     task_ids = [args.task] if args.task else list(TASKS.keys())
@@ -303,7 +312,7 @@ async def main():
 
         result = await run_episode(
             client=client,
-            model=args.model,
+            model=model,
             task_id=task_id,
             max_steps=args.max_steps,
             randomize=args.randomize,
